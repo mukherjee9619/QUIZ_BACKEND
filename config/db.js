@@ -1,12 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+
+let isConnected = false;
 
 async function dbConnect() {
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/quizDB';
-  if (mongoose.connection.readyState === 1) return;
-  await mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+  if (isConnected) return;
+
+  try {
+    const uri = process.env.MONGO_URI;
+    await mongoose.connect(uri);
+    isConnected = true;
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB error", err);
+    throw err;
+  }
 }
 
 module.exports = dbConnect;

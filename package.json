@@ -8,8 +8,7 @@
   "main": "indexx.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node indexx.js",
-    "dev": "nodemon indexx.js"
+    "start": "node index.js",
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
