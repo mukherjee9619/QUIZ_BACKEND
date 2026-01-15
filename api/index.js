@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-const dbConnect = require("./config/dbConnect");
+const dbConnect = require("../config/dbConnect");
 
 const authRoutes = require("../routes/auth.routes");
 const adminRoutes = require("../routes/admin.routes");
