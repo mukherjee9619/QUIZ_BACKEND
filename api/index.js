@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 
-const dbConnect = require("./config/dbConnect");
+const dbConnect = require("./config/db");
 
-const authRoutes = require("../routes/auth.routes");
-const adminRoutes = require("../routes/admin.routes");
-const subjectRoutes = require("../routes/subject.routes");
-const activityRoutes = require("../routes/activity.routes");
-const questionRoutes = require("../routes/question.routes");
-const resultRoutes = require("../routes/result.routes");
+const authRoutes = require("./routes/auth.routes");
+const adminRoutes = require("./routes/admin.routes");
+const subjectRoutes = require("./routes/subject.routes");
+const activityRoutes = require("./routes/activity.routes");
+const questionRoutes = require("./routes/question.routes");
+const resultRoutes = require("./routes/result.routes");
 
 const app = express();
 
