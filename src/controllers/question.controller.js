@@ -4,9 +4,7 @@ const logActivity = require("../utils/activityLogger");
 const ACTIVITY = require("../utils/activityTypes");
 const dbConnect = require("../config/db");
 
-/* ===================================================
-   ADD QUESTION
-=================================================== */
+/* ================= ADD QUESTION ================= */
 exports.addQuestion = async (req, res, next) => {
   try {
     await dbConnect();
@@ -17,9 +15,7 @@ exports.addQuestion = async (req, res, next) => {
     }
 
     if (!Array.isArray(data.options) || data.options.length !== 4) {
-      return res
-        .status(400)
-        .json({ message: "Exactly 4 options required" });
+      return res.status(400).json({ message: "Exactly 4 options required" });
     }
 
     const question = await Question.create({
@@ -42,9 +38,55 @@ exports.addQuestion = async (req, res, next) => {
   }
 };
 
-/* ===================================================
-   GET ADMIN QUESTIONS
-=================================================== */
+/* ================= UPDATE QUESTION (🔥 MISSING) ================= */
+exports.updateQuestion = async (req, res, next) => {
+  try {
+    await dbConnect();
+
+    const updated = await Question.findByIdAndUpdate(
+      req.params.id,
+      {
+        title: req.body.title,
+        options: req.body.options,
+        correctAnswer: Number(req.body.correctAnswer),
+        type: req.body.type,
+        code: req.body.type === "output" ? req.body.code : null,
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    res.json({ message: "Question updated successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/* ================= GET SINGLE QUESTION (🔥 MISSING) ================= */
+exports.getSingleQuestion = async (req, res, next) => {
+  try {
+    await dbConnect();
+
+    const question = await Question.findById(req.params.id).lean();
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    const subject = await Subject.findById(question.subjectId).lean();
+
+    res.json({
+      ...question,
+      subjectName: subject?.displayName || subject?.name || "Unknown",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/* ================= GET ADMIN QUESTIONS ================= */
 exports.getAdminQuestions = async (req, res, next) => {
   try {
     await dbConnect();
@@ -88,9 +130,7 @@ exports.getAdminQuestions = async (req, res, next) => {
   }
 };
 
-/* ===================================================
-   FRONTEND QUESTIONS
-=================================================== */
+/* ================= FRONTEND QUESTIONS ================= */
 exports.getFrontendQuestions = async (req, res, next) => {
   try {
     await dbConnect();
@@ -112,9 +152,7 @@ exports.getFrontendQuestions = async (req, res, next) => {
   }
 };
 
-/* ===================================================
-   DELETE QUESTION
-=================================================== */
+/* ================= DELETE QUESTION ================= */
 exports.deleteQuestion = async (req, res, next) => {
   try {
     await dbConnect();
