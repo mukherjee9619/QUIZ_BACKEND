@@ -1,11 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const QuestionSchema = new mongoose.Schema({
-  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
-  q: { type: String, required: true },
-  options: { type: [String], required: true },
-  answerIndex: { type: Number, required: true }, // index of correct option
-  createdAt: { type: Date, default: Date.now }
-});
+const QuestionSchema = new mongoose.Schema(
+  {
+    subjectId: { type: String, required: true },
+    questionId: String,
+    language: String,
+    type: { type: String, default: "mcq" },
+    title: { type: String, required: true },
+    code: String,
+    options: { type: [String], required: true },
+    correctAnswer: { type: Number, required: true },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Question', QuestionSchema);
+module.exports = mongoose.model("Question", QuestionSchema);
