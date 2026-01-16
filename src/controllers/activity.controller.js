@@ -1,4 +1,4 @@
-const { default: dbConnect } = require("../config/db");
+const dbConnect = require("../config/db");
 const Activity = require("../models/Activity");
 
 /* ===================================================

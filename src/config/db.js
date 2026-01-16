@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 let cached = global.mongoose;
 
@@ -9,11 +9,11 @@ if (!cached) {
 const dbConnect = async () => {
   if (cached.conn) return cached.conn;
 
-  if (!cached.promise) {
-    if (!process.env.MONGO_URI) {
-      throw new Error("❌ MONGO_URI missing");
-    }
+  if (!process.env.MONGO_URI) {
+    throw new Error("❌ MONGO_URI missing");
+  }
 
+  if (!cached.promise) {
     cached.promise = mongoose.connect(process.env.MONGO_URI, {
       bufferCommands: false,
     });
@@ -24,4 +24,4 @@ const dbConnect = async () => {
   return cached.conn;
 };
 
-export default dbConnect;
+module.exports = dbConnect;

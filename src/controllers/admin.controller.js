@@ -1,7 +1,7 @@
 const Subject = require("../models/Subject");
 const Question = require("../models/Question");
 const User = require("../models/User");
-const { default: dbConnect } = require("../config/db");
+const dbConnect = require("../config/db");
 
 
 /* ===================================================

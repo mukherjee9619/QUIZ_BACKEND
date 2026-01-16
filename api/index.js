@@ -1,8 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 
-const dbConnect = require("../src/config/db");
-
 const authRoutes = require("../src/routes/auth.routes");
 const adminRoutes = require("../src/routes/admin.routes");
 const subjectRoutes = require("../src/routes/subject.routes");
@@ -12,30 +10,8 @@ const resultRoutes = require("../src/routes/result.routes");
 
 const app = express();
 
-/* ================= DB CONNECT ================= */
-dbConnect();
-
 /* ================= MIDDLEWARE ================= */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://your-frontend.vercel.app" // 👈 ADD THIS
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
 /* ================= ROUTES ================= */
@@ -51,8 +27,7 @@ app.use("/api/admin", questionRoutes);
 /* ================= ERROR HANDLER ================= */
 app.use((err, req, res, next) => {
   console.error("❌ SERVER ERROR:", err);
-  res.status(500).json({ message: "Internal server error" });
+  res.status(500).json({ message: err.message || "Internal server error" });
 });
 
-/* ================= EXPORT APP ================= */
-module.exports = app;   // 🔥 VERY IMPORTANT
+module.exports = app;

@@ -1,6 +1,6 @@
 const generateResultPDF = require("../utils/resultPdf");
 const { sendResultEmailWithPDF } = require("../middleware/mailer");
-const { default: dbConnect } = require("../config/db");
+const dbConnect = require("../config/db");
 
 
 

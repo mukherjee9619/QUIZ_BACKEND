@@ -5,7 +5,7 @@ const User = require("../models/User");
 const jwtConfig = require("../config/jwt");
 const { sendOTPEmail } = require("../middleware/mailer");
 const { sendWelcomeEmail } = require("../middleware/registerMail");
-const { default: dbConnect } = require("../config/db");
+const dbConnect = require("../config/db");
 
 const SALT_ROUNDS = 10;
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes

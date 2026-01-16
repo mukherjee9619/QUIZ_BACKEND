@@ -1,9 +1,9 @@
 
 
-const { default: dbConnect } = require("../config/db");
 const Subject = require("../models/Subject");
 const logActivity = require("../utils/activityLogger");
 const ACTIVITY = require("../utils/activityTypes");
+const dbConnect = require("../config/db");
 
 /* ===================================================
    ADD SUBJECT

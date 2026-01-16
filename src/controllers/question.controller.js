@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
 const logActivity = require("../utils/activityLogger");
 const ACTIVITY = require("../utils/activityTypes");
-const { default: dbConnect } = require("../config/db");
+const dbConnect = require("../config/db");
 
 
 /* ===================================================
