@@ -7,6 +7,6 @@ const resultCtrl = require("../controllers/user.controller");
 router.post("/result/email", resultCtrl.emailResultPDF);
 
 // get user results
-router.get("/results/:userId", resultCtrl.getUserResults);
+// router.get("/results/:userId", resultCtrl.getUserResults);
 
 module.exports = router;

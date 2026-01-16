@@ -1,6 +1,7 @@
 const Subject = require("../models/Subject");
 const Question = require("../models/Question");
 const User = require("../models/User");
+const { default: dbConnect } = require("../config/db");
 
 
 /* ===================================================
@@ -8,6 +9,7 @@ const User = require("../models/User");
 =================================================== */
 exports.getStats = async (req, res, next) => {
   try {
+    await dbConnect();
     const subjects = await Subject.countDocuments();
     const questions = await Question.countDocuments();
     const users = await User.countDocuments();

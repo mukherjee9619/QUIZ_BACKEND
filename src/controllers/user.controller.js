@@ -1,5 +1,7 @@
 const generateResultPDF = require("../utils/resultPdf");
 const { sendResultEmailWithPDF } = require("../middleware/mailer");
+const { default: dbConnect } = require("../config/db");
+
 
 
 
@@ -8,6 +10,7 @@ const { sendResultEmailWithPDF } = require("../middleware/mailer");
 =================================================== */
 exports.emailResultPDF = async (req, res, next) => {
   try {
+    await dbConnect();
     const {
       email,
       userName,
@@ -50,23 +53,3 @@ exports.emailResultPDF = async (req, res, next) => {
   }
 };
 
-/* ===================================================
-   GET USER RESULTS HISTORY
-=================================================== */
-exports.getUserResults = async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-
-    if (!userId) {
-      return res.status(400).json({ message: "User ID required" });
-    }
-
-    const results = await Result.find({ userId })
-      .sort({ createdAt: -1 })
-      .select("-__v");
-
-    res.json(results);
-  } catch (err) {
-    next(err);
-  }
-};

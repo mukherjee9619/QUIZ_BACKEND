@@ -1,3 +1,6 @@
+
+
+const { default: dbConnect } = require("../config/db");
 const Subject = require("../models/Subject");
 const logActivity = require("../utils/activityLogger");
 const ACTIVITY = require("../utils/activityTypes");
@@ -7,6 +10,7 @@ const ACTIVITY = require("../utils/activityTypes");
 =================================================== */
 exports.addSubject = async (req, res, next) => {
   try {
+    await dbConnect();
     const { name, description } = req.body;
 
     if (!name || !name.trim()) {
@@ -58,6 +62,7 @@ exports.addSubject = async (req, res, next) => {
 =================================================== */
 exports.editSubject = async (req, res, next) => {
   try {
+    await dbConnect();
     const { id } = req.params;
     const { name, description } = req.body;
 
@@ -110,6 +115,7 @@ exports.editSubject = async (req, res, next) => {
 =================================================== */
 exports.getSingleSubject = async (req, res, next) => {
   try {
+    await dbConnect();
     const subject = await Subject.findById(req.params.id);
 
     if (!subject) {
@@ -127,6 +133,7 @@ exports.getSingleSubject = async (req, res, next) => {
 =================================================== */
 exports.getAllSubjects = async (req, res, next) => {
   try {
+    await dbConnect();
     const page = parseInt(req.query.page) || 1;
     const limitParam = req.query.limit;
     const search = req.query.search?.trim() || "";
@@ -175,6 +182,7 @@ exports.getAllSubjects = async (req, res, next) => {
 =================================================== */
 exports.deleteSubject = async (req, res, next) => {
   try {
+    await dbConnect();
     const { id } = req.params;
 
     // 1️⃣ Check subject exists

@@ -1,3 +1,4 @@
+const { default: dbConnect } = require("../config/db");
 const Activity = require("../models/Activity");
 
 /* ===================================================
@@ -5,6 +6,7 @@ const Activity = require("../models/Activity");
 =================================================== */
 exports.getAdminActivities = async (req, res, next) => {
   try {
+    await dbConnect();
     const activities = await Activity.find({})
       .sort({ createdAt: -1 })
       .limit(30);
@@ -20,6 +22,7 @@ exports.getAdminActivities = async (req, res, next) => {
 =================================================== */
 exports.markActivitiesRead = async (req, res, next) => {
   try {
+    await dbConnect();
     await Activity.updateMany({ read: false }, { $set: { read: true } });
 
     res.json({ message: "All notifications marked as read" });

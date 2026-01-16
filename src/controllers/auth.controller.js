@@ -5,6 +5,7 @@ const User = require("../models/User");
 const jwtConfig = require("../config/jwt");
 const { sendOTPEmail } = require("../middleware/mailer");
 const { sendWelcomeEmail } = require("../middleware/registerMail");
+const { default: dbConnect } = require("../config/db");
 
 const SALT_ROUNDS = 10;
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
@@ -22,6 +23,7 @@ function hashOTP(otp) {
 /* ================= REGISTER ================= */
 exports.register = async (req, res, next) => {
   try {
+    await dbConnect();
     const { name, email, password, phone } = req.body;
     console.log("test", req.body);
 
@@ -67,6 +69,7 @@ exports.register = async (req, res, next) => {
 /* ================= LOGIN ================= */
 exports.login = async (req, res, next) => {
   try {
+    await dbConnect();
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -107,6 +110,7 @@ exports.login = async (req, res, next) => {
 /* ================= FORGOT PASSWORD (SEND OTP) ================= */
 exports.forgotPassword = async (req, res, next) => {
   try {
+    await dbConnect();
     const { email } = req.body;
 
     if (!email) {
@@ -138,6 +142,7 @@ exports.forgotPassword = async (req, res, next) => {
 /* ================= VERIFY OTP ================= */
 exports.verifyOtp = async (req, res, next) => {
   try {
+    await dbConnect();
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -192,6 +197,7 @@ exports.verifyOtp = async (req, res, next) => {
 /* ================= RESET PASSWORD ================= */
 exports.resetPassword = async (req, res, next) => {
   try {
+    await dbConnect();
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

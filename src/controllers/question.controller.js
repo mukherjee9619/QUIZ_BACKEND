@@ -1,6 +1,8 @@
 const { ObjectId } = require("mongodb");
 const logActivity = require("../utils/activityLogger");
 const ACTIVITY = require("../utils/activityTypes");
+const { default: dbConnect } = require("../config/db");
+
 
 /* ===================================================
    ADD QUESTION (OLD FORMAT)
@@ -8,6 +10,7 @@ const ACTIVITY = require("../utils/activityTypes");
 =================================================== */
 exports.addQuestion = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
     const data = req.body;
 
@@ -74,6 +77,7 @@ exports.addQuestion = async (req, res, next) => {
 =================================================== */
 exports.updateQuestion = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
     const { id } = req.params;
     const data = req.body;
@@ -111,6 +115,7 @@ exports.updateQuestion = async (req, res, next) => {
 =================================================== */
 exports.getSingleQuestion = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
     const { id } = req.params;
 
@@ -141,6 +146,7 @@ exports.getSingleQuestion = async (req, res, next) => {
 =================================================== */
 exports.getAdminQuestions = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
 
     const page = parseInt(req.query.page) || 1;
@@ -202,6 +208,7 @@ exports.getAdminQuestions = async (req, res, next) => {
 =================================================== */
 exports.getFrontendQuestions = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
 
     const search = req.query.search || "";
@@ -241,6 +248,7 @@ exports.getFrontendQuestions = async (req, res, next) => {
 =================================================== */
 exports.deleteQuestion = async (req, res, next) => {
   try {
+    await dbConnect();
     const db = req.app.locals.db;
     const { id } = req.params;
 
