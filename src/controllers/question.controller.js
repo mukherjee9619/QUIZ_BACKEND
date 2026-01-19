@@ -61,98 +61,98 @@ exports.addQuestion = async (req, res, next) => {
 /* =========================================================
    IMPORT QUESTIONS FROM JSON (DUPLICATE SAFE)
 ========================================================= */
-exports.importQuestionsFromJson = async (req, res, next) => {
-  try {
-    await dbConnect();
+// exports.importQuestionsFromJson = async (req, res, next) => {
+//   try {
+//     await dbConnect();
 
-    if (!req.file) {
-      return res.status(400).json({ message: "JSON file required" });
-    }
+//     if (!req.file) {
+//       return res.status(400).json({ message: "JSON file required" });
+//     }
 
-    const rawData = fs.readFileSync(req.file.path, "utf-8");
-    const questions = JSON.parse(rawData);
+//     const rawData = fs.readFileSync(req.file.path, "utf-8");
+//     const questions = JSON.parse(rawData);
 
-    if (!Array.isArray(questions)) {
-      return res.status(400).json({ message: "JSON must be an array" });
-    }
+//     if (!Array.isArray(questions)) {
+//       return res.status(400).json({ message: "JSON must be an array" });
+//     }
 
-    let inserted = 0;
-    let skipped = 0;
-    let duplicates = 0;
+//     let inserted = 0;
+//     let skipped = 0;
+//     let duplicates = 0;
 
-    const bulk = [];
+//     const bulk = [];
 
-    for (const q of questions) {
-      if (
-        !q.title ||
-        !q.type ||
-        !Array.isArray(q.options) ||
-        q.options.length !== 4 ||
-        q.correctAnswer === undefined
-      ) {
-        skipped++;
-        continue;
-      }
+//     for (const q of questions) {
+//       if (
+//         !q.title ||
+//         !q.type ||
+//         !Array.isArray(q.options) ||
+//         q.options.length !== 4 ||
+//         q.correctAnswer === undefined
+//       ) {
+//         skipped++;
+//         continue;
+//       }
 
-      /* 🔍 DUPLICATE CHECK */
-      const duplicateQuery = {
-        subjectId: req.body.subjectId,
-        title: q.title,
-        type: q.type,
-        language: q.language || null,
-      };
+//       /* 🔍 DUPLICATE CHECK */
+//       const duplicateQuery = {
+//         subjectId: req.body.subjectId,
+//         title: q.title,
+//         type: q.type,
+//         language: q.language || null,
+//       };
 
-      if (q.type === "output" && q.code?.content) {
-        duplicateQuery["code.content"] = q.code.content;
-      }
+//       if (q.type === "output" && q.code?.content) {
+//         duplicateQuery["code.content"] = q.code.content;
+//       }
 
-      const exists = await Question.findOne(duplicateQuery);
-      if (exists) {
-        duplicates++;
-        continue;
-      }
+//       const exists = await Question.findOne(duplicateQuery);
+//       if (exists) {
+//         duplicates++;
+//         continue;
+//       }
 
-      let codeField = null;
-      if (q.type === "output") {
-        if (!q.code || !q.code.content) {
-          skipped++;
-          continue;
-        }
-        codeField = {
-          content: q.code.content,
-          language: q.code.language || q.language || "c",
-        };
-      }
+//       let codeField = null;
+//       if (q.type === "output") {
+//         if (!q.code || !q.code.content) {
+//           skipped++;
+//           continue;
+//         }
+//         codeField = {
+//           content: q.code.content,
+//           language: q.code.language || q.language || "c",
+//         };
+//       }
 
-      bulk.push({
-        subjectId: req.body.subjectId,
-        questionId: q.id || null,
-        language: q.language || null,
-        type: q.type,
-        title: q.title,
-        code: codeField,
-        options: q.options,
-        correctAnswer: Number(q.correctAnswer),
-      });
-    }
+//       bulk.push({
+//         subjectId: req.body.subjectId,
+//         questionId: q.id || null,
+//         language: q.language || null,
+//         type: q.type,
+//         title: q.title,
+//         code: codeField,
+//         options: q.options,
+//         correctAnswer: Number(q.correctAnswer),
+//       });
+//     }
 
-    if (bulk.length) {
-      await Question.insertMany(bulk);
-      inserted = bulk.length;
-    }
+//     if (bulk.length) {
+//       await Question.insertMany(bulk);
+//       inserted = bulk.length;
+//     }
 
-    fs.unlinkSync(req.file.path);
+//     fs.unlinkSync(req.file.path);
 
-    res.json({
-      message: "📥 JSON import completed",
-      inserted,
-      skipped,
-      duplicates,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.json({
+//       message: "📥 JSON import completed",
+//       inserted,
+//       skipped,
+//       duplicates,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 /* =========================================================
    UPDATE QUESTION
