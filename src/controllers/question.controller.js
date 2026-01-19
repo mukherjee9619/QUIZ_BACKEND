@@ -1,10 +1,11 @@
 const Question = require("../models/Question");
 const Subject = require("../models/Subject");
-const logActivity = require("../utils/activityLogger");
-const ACTIVITY = require("../utils/activityTypes");
 const dbConnect = require("../config/db");
+const fs = require("fs");
 
-/* ================= ADD QUESTION ================= */
+/* =========================================================
+   ADD SINGLE QUESTION (WITH DUPLICATE CHECK)
+========================================================= */
 exports.addQuestion = async (req, res, next) => {
   try {
     await dbConnect();
@@ -18,13 +19,32 @@ exports.addQuestion = async (req, res, next) => {
       return res.status(400).json({ message: "Exactly 4 options required" });
     }
 
+    /* 🔍 DUPLICATE CHECK */
+    const duplicateQuery = {
+      subjectId: data.subjectId,
+      title: data.title,
+      type: data.type || "mcq",
+      language: data.language || null,
+    };
+
+    if (data.type === "output" && data.code?.content) {
+      duplicateQuery["code.content"] = data.code.content;
+    }
+
+    const exists = await Question.findOne(duplicateQuery);
+    if (exists) {
+      return res.status(409).json({
+        message: "⚠️ Duplicate question already exists",
+      });
+    }
+
     const question = await Question.create({
       subjectId: data.subjectId,
       questionId: data.questionId || null,
       language: data.language || null,
       type: data.type || "mcq",
       title: data.title,
-      code: data.code || null,
+      code: data.type === "output" ? data.code : null,
       options: data.options,
       correctAnswer: Number(data.correctAnswer),
     });
@@ -38,7 +58,105 @@ exports.addQuestion = async (req, res, next) => {
   }
 };
 
-/* ================= UPDATE QUESTION (🔥 MISSING) ================= */
+/* =========================================================
+   IMPORT QUESTIONS FROM JSON (DUPLICATE SAFE)
+========================================================= */
+exports.importQuestionsFromJson = async (req, res, next) => {
+  try {
+    await dbConnect();
+
+    if (!req.file) {
+      return res.status(400).json({ message: "JSON file required" });
+    }
+
+    const rawData = fs.readFileSync(req.file.path, "utf-8");
+    const questions = JSON.parse(rawData);
+
+    if (!Array.isArray(questions)) {
+      return res.status(400).json({ message: "JSON must be an array" });
+    }
+
+    let inserted = 0;
+    let skipped = 0;
+    let duplicates = 0;
+
+    const bulk = [];
+
+    for (const q of questions) {
+      if (
+        !q.title ||
+        !q.type ||
+        !Array.isArray(q.options) ||
+        q.options.length !== 4 ||
+        q.correctAnswer === undefined
+      ) {
+        skipped++;
+        continue;
+      }
+
+      /* 🔍 DUPLICATE CHECK */
+      const duplicateQuery = {
+        subjectId: req.body.subjectId,
+        title: q.title,
+        type: q.type,
+        language: q.language || null,
+      };
+
+      if (q.type === "output" && q.code?.content) {
+        duplicateQuery["code.content"] = q.code.content;
+      }
+
+      const exists = await Question.findOne(duplicateQuery);
+      if (exists) {
+        duplicates++;
+        continue;
+      }
+
+      let codeField = null;
+      if (q.type === "output") {
+        if (!q.code || !q.code.content) {
+          skipped++;
+          continue;
+        }
+        codeField = {
+          content: q.code.content,
+          language: q.code.language || q.language || "c",
+        };
+      }
+
+      bulk.push({
+        subjectId: req.body.subjectId,
+        questionId: q.id || null,
+        language: q.language || null,
+        type: q.type,
+        title: q.title,
+        code: codeField,
+        options: q.options,
+        correctAnswer: Number(q.correctAnswer),
+      });
+    }
+
+    if (bulk.length) {
+      await Question.insertMany(bulk);
+      inserted = bulk.length;
+    }
+
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      message: "📥 JSON import completed",
+      inserted,
+      skipped,
+      duplicates,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/* =========================================================
+   UPDATE QUESTION
+========================================================= */
 exports.updateQuestion = async (req, res, next) => {
   try {
     await dbConnect();
@@ -59,13 +177,15 @@ exports.updateQuestion = async (req, res, next) => {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    res.json({ message: "Question updated successfully" });
+    res.json({ message: "✏️ Question updated successfully" });
   } catch (err) {
     next(err);
   }
 };
 
-/* ================= GET SINGLE QUESTION (🔥 MISSING) ================= */
+/* =========================================================
+   GET SINGLE QUESTION
+========================================================= */
 exports.getSingleQuestion = async (req, res, next) => {
   try {
     await dbConnect();
@@ -86,7 +206,9 @@ exports.getSingleQuestion = async (req, res, next) => {
   }
 };
 
-/* ================= GET ADMIN QUESTIONS ================= */
+/* =========================================================
+   GET ADMIN QUESTIONS (PAGINATION + SEARCH)
+========================================================= */
 exports.getAdminQuestions = async (req, res, next) => {
   try {
     await dbConnect();
@@ -130,7 +252,9 @@ exports.getAdminQuestions = async (req, res, next) => {
   }
 };
 
-/* ================= FRONTEND QUESTIONS ================= */
+/* =========================================================
+   FRONTEND QUESTIONS
+========================================================= */
 exports.getFrontendQuestions = async (req, res, next) => {
   try {
     await dbConnect();
@@ -152,7 +276,9 @@ exports.getFrontendQuestions = async (req, res, next) => {
   }
 };
 
-/* ================= DELETE QUESTION ================= */
+/* =========================================================
+   DELETE QUESTION
+========================================================= */
 exports.deleteQuestion = async (req, res, next) => {
   try {
     await dbConnect();
